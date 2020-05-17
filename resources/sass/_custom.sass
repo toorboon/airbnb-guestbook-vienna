@@ -1,0 +1,48 @@
+// Put your custom styling here
+div[data-href], tr[data-href]
+    cursor: pointer
+
+.guest_box:hover
+    background-color: rgba(104, 202, 192, 0.5)
+    -webkit-transition: background-color 1000ms linear
+    -ms-transition: background-color 1000ms linear
+    transition: background-color 1000ms linear
+
+#select_minifier select
+    width: 70px
+
+@media screen and (max-width: 768px)
+    .table_card table
+        border: 0
+
+
+    .table_card thead
+        display: none
+
+    .table_card tr
+        margin-bottom: 20px
+        margin-left: auto
+        margin-right: auto
+        display: block
+        max-width: 300px !important
+        border-bottom: 2px solid #ddd
+        box-shadow: 2px 2px 1px #dadada
+        background-color: #f2f2f2
+
+
+    .table_card td
+        display: block
+        text-align: right
+        font-size: 13px
+
+    .table_card td:last-child
+        border-bottom: 0
+
+    .table_card td::before
+        content: attr(data-label)
+        float: left
+        text-transform: uppercase
+
+
+    .table_card tbody
+        line-height: 0 !important
