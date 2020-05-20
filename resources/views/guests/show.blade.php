@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
+    <div class="container-fluid">
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-12 col-lg-8">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="text-center">{{$guest->first_name}} {{$guest->last_name}}</h3>

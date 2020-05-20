@@ -50,6 +50,7 @@ $(document).ready(function(){
 
     // Necessary for table redrawing on Dashboard view
     $(window).bind("resize",function(){
+        // console.log($(window).width());
         tackleClasses(this);
     });
 
@@ -61,15 +62,14 @@ $(document).ready(function(){
     // Resets the Search field on Dashboard
     $(document).on('click', '#reset_search', function(){
         window.location = '/admin/dashboard';
-        // Wie soll man an dieser Stelle bei einem Reset die $Request Variable leeren?
-        // setTimeout(function(){clearElementValue('search'); }, 5000);
     });
 
     // Resets the Search field on Guests Overview
     $(document).on('click', '#reset_guests_search', function(){
         window.location = '/guests';
-        // setTimeout(function(){clearElementValue('search'); }, 5000);
     });
+
+
 
 // declare functions
 	// Clear searches

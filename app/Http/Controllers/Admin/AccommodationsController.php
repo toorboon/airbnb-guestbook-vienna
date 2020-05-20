@@ -74,8 +74,8 @@ class AccommodationsController extends Controller
         $connectedGuests = $accommodation->guests()->get('id')->toArray();
         $connectedGuests = array_column($connectedGuests, 'id');
 
-        if ($accommodation->guests_count !== 0){
-            return back()->with('error', 'Accommodation still used for guest_ids '.implode(", ",$connectedGuests));
+        if ($accommodation->guests()->count() !== 0){
+            return back()->with('error', 'Accommodation still used for guest_id(s) '.implode(", ",$connectedGuests));
         }
 
         $accommodation->delete();

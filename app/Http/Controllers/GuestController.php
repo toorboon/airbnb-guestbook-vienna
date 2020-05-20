@@ -256,10 +256,13 @@ class GuestController extends Controller
      */
     public function edit($id)
     {
+        $countries = $this->countries->all()->pluck('name.common')->toArray();
+
         $guest = Guest::find($id);
         return view('guests/edit')
             ->with('guest', $guest)
-            ->with('fellows', $guest->fellows);
+            ->with('fellows', $guest->fellows)
+            ->with('countries', $countries);
     }
 
     /**

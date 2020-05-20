@@ -13,7 +13,7 @@
                     <hr>
                 @endcan
                 <h5 class="text-center">You like this app?</h5>
-                <form action="https://www.paypal.com/cgi-bin/webscr" method="post" class="text-center" target="_top">
+                <form action="https://www.paypal.com/cgi-bin/webscr" method="post" class="text-center" target="_blank">
 
                     <!-- Identify your business so that you can collect the payments. -->
                     <input type="hidden" name="business" value="soledat@gmx.net">

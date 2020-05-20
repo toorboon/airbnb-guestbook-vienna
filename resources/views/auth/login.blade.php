@@ -6,7 +6,13 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">{{ __('Login') }}</div>
-
+{{--                    Only for Demo Issues comment this div in--}}
+{{--                    <div class="bg-light text-center mx-auto mt-3 p-2">--}}
+{{--                        <p class="mb-0">Admin-user = admin_test@example.com</p>--}}
+{{--                        <p>Password = admin</p>--}}
+{{--                        <p class="mb-0">Guest-user = guest_test@example.com</p>--}}
+{{--                        <p class="mb-0">Password = testtest</p>--}}
+{{--                    </div>--}}
                 <div class="card-body">
                     <form method="POST" action="{{ route('login') }}">
                         @csrf

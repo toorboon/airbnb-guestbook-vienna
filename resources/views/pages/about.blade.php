@@ -28,15 +28,6 @@
                 </ul>
             </div>
         </div>
-        <hr>
-        <div class="row ">
-            <div class="col-12">
-                <h3>To Do:</h3>
-                <ul>
-
-                </ul>
-            </div>
-        </div>
     </div>
 
 
