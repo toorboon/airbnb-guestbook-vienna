@@ -8,6 +8,20 @@ $(document).ready(function(){
     const datetimepicker = document.initDatepicker('.js-datetimepicker',getConfigDateTime());
 
 // set event-handlers
+    // Check role_selector on user register form, and display divs regarding the option chosen
+    $(document).on('change', '#role_selector', function(){
+        let e = document.getElementById('role_selector');
+        let strSelect = e.options[e.selectedIndex].value;
+
+        if (strSelect === 'Admin') {
+            $('#invite_checkbox').toggleClass('d-none');
+            $('#accommodation_box').addClass('d-none');
+        } else {
+            $('#invite_checkbox').toggleClass('d-block');
+            $('#accommodation_box').removeClass('d-none');
+        }
+    })
+
     // event-handler for making the row clickable in the dashboard table
     $(document).on('click', 'div[data-href]', function(){
         window.location = $(this).data('href');
@@ -27,7 +41,7 @@ $(document).ready(function(){
     $(document).on('keypress', '.input_change', function(e){
         let key = e.charCode || e.keyCode || 0;
         const initialValue = this.getAttribute('value');
-        console.log(initialValue);
+
         if (key === 13) {
             if (!gotChanged(this)) {
                 alert('You did not change anything!');

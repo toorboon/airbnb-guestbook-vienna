@@ -61,13 +61,41 @@
                             </div>
                         </div>
 
-                        <div class="form-group row mb-0">
-                            <div class="col-12  d-flex justify-content-around">
+
+
+                        <div id="accommodation_box" class="form-group row mb-0">
+                            <label for="accommodation" class="col-md-4 col-form-label text-md-right">{{ __('Accommodation') }}</label>
+
+                            <div class="col-md-6">
+                                <select class="form-control custom-select" name="accommodation_id">
+                                    @foreach($accommodations as $accommodation)
+                                        <option value="{{ $accommodation->id }}">{{ $accommodation->name }}</option>
+                                    @endforeach
+                                    <option disabled selected>Please choose an accommodation</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row mt-4">
+                            <div class="col-12  d-flex justify-content-between">
                                 <div class="d-flex">
-                                    <label for="invite_checkbox" class="col-form-label" title="Check this box if you want the user to get an one time login link">{{ __('Invite User') }}</label>
+                                    <label for="role" class="col-form-label">{{ __('Role') }}</label>
 
                                     <div class="ml-2">
-                                        <input id="invite_checkbox" type="checkbox" class="form-control" name="invite">
+                                        <select id="role_selector" class="custom-select" name="role">
+                                            <option value="Admin">Admin</option>
+                                            <option value="Guest" selected>Guest</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div id="invite_checkbox">
+                                    <div class="d-flex">
+                                        <label for="invite_checkbox" class="col-form-label" title="Check this box if you want the user to get an one time login link">{{ __('Invite User') }}</label>
+
+                                        <div class="ml-2">
+                                            <input type="checkbox" class="form-control" name="invite">
+                                        </div>
                                     </div>
                                 </div>
 

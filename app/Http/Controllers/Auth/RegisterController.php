@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Accommodation;
 use App\Mail\InviteCreated;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Registered;
@@ -49,6 +50,18 @@ class RegisterController extends Controller
     }
 
     /**
+     * Show the application registration form.
+     *
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function showRegistrationForm()
+    {
+        $accommodations = Accommodation::all();
+
+        return view('auth.register')->with('accommodations', $accommodations);
+    }
+
+    /**
      * Get a validator for an incoming registration request.
      *
      * @param  array  $data
@@ -60,6 +73,8 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'accommodation_id' => ['required_if:role,"Guest"', 'integer'],
+            'role' => ['required', 'string', 'max:255']
         ]);
     }
 
@@ -71,16 +86,18 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        $roleId = Role::select('id')->where('name', $data['role'])->first()->id;
 
-        $roleId = Role::select('id')->where('name', 'Guest')->first()->id;
+        $userArray ['name'] = $data['name'];
+        $userArray ['email'] = $data['email'];
+        $userArray ['password'] = bcrypt($data['password']);
+        $userArray ['role_id'] = $roleId;
 
-        // can only create guest users by default
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'role_id' => $roleId,
-        ]);
+        if (array_key_exists('accommodation_id', $data)){
+            $userArray ['accommodation_id'] = $data['accommodation_id'];
+        }
+
+        return User::create($userArray);
     }
 
     /**
@@ -124,9 +141,9 @@ class RegisterController extends Controller
         $adminRole = Role::where('name', 'Admin')->pluck('id');
         $responsibleAdmin = User::where('role_id', $adminRole)->first();
 
-        // Create MagicLink for login of guest users; valid for 14 days and 2 visits of the page
+        // Create MagicLink for login of guest users; valid for 14 days and 3 visits of the page
         $lifetime = 20160;
-        $numMaxVisits = 2;
+        $numMaxVisits = 3;
 
         // Make a dataArray to use the data for the Email template invite.blade.php
         $dataArray = [];

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Accommodation;
 use App\Exports\GuestExport;
+use App\Http\Requests\GuestRequest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Guest;
@@ -32,12 +33,11 @@ class GuestController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     * @throws \Exception
      */
     public function index(Request $request)
     {
-
         // Check, if any role is set
         $userRole = auth()->user()->role->name;
 
@@ -87,7 +87,7 @@ class GuestController extends Controller
     protected function consolidateViewArray($guests){
         $bookings = [];
 
-        // Do a prefilter on the arrival_date of the Guests so you can group them
+        // Do a pre-filter on the arrival_date of the Guests so you can group them
         foreach ($guests as $index => $guest){
             $guestArrivalDate = (new Carbon($guest['arrival_date']))->format('d.m.Y');
             $guestAccommodationId = $guest['accommodation_id'];
@@ -107,9 +107,10 @@ class GuestController extends Controller
             $fellows = [];
 
             foreach ($guestGroup as $groupKey => $guest) {
+                // Check with every run, if you can overwrite your old $maxDepartureDate
                 if ($maxDepartureDate < ($guest['act_departure_date'])){
                     $maxDepartureDate = ($guest['act_departure_date']);
-                } // Check with every run, if you can overwrite your old $maxDepartureDate
+                }
 
                 if ($minCreatedAt > ($guest['created_at'])){
                     $minCreatedAt = ($guest['created_at']);
@@ -139,11 +140,12 @@ class GuestController extends Controller
             $guestsFinal[$index]['count'] = $guestGroupCount;
             $guestsFinal[$index]['created_by'] = $guestGroup[0]->user->name;
             $guestsFinal[$index]['created_at'] = (new Carbon())->diffInDays($minCreatedAt);
-            $guestsFinal[$index]['accommodation'] = $guestGroup[0]->accommodation->name;
+            if ($guestGroup[0]->accommodation) {
+                $guestsFinal[$index]['accommodation'] = $guestGroup[0]->accommodation->name;
+            }
             $guestsFinal[$index]['fellows'] = $fellows;
             $guestsFinal[$index]['guests'] = $guestGroup;
 
-//            dd($guestsFinal);
             $index++;
         }
 
@@ -172,52 +174,28 @@ class GuestController extends Controller
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request)
+    public function store(GuestRequest $request)
     {
-
-        $baseValidation = [
-            'last_name' => 'required',
-            'first_name' => 'required',
-            'gender' => 'required',
-            'birth_date' => 'required',
-            'citizenship' => 'required',
-            'document_type' => 'required',
-            'document' => 'required',
-            'address' => 'required',
-            'arrival_date' => 'required',
-            'est_departure_date' => 'required',
-            'signature' => 'required',
-            #'accommodation_id' => 'required',
-        ];
-
-        $fellows = request()->get('fellows');
-        if ($fellows){
-            $baseValidation['*.*.first_name'] = 'required|min:2';
-            $baseValidation['*.*.last_name'] = 'required|min:2';
-            $baseValidation['*.*.birth_date'] = 'required|date';
-        }
-
-        $this->validate($request, $baseValidation);
+        $validated = $request->validated();
 
         // Check if accommodation_id is empty, if so, take from user (because then it is a guest with just
         // one accommodation_id possible -> set in Dashboard pane
         if (auth()->user()->role->name === 'Guest'){
-            $request['accommodation_id'] = auth()->user()->accommodation->id;
+            $validated['accommodation_id'] = auth()->user()->accommodation->id;
         }
 
         // Process guest data and get user_id
         $guest = new Guest;
-        $formData = $request->all();
-        $formData['user_id'] = auth()->user()->id;
-        $guest->fill($formData);
+        $validated['user_id'] = auth()->user()->id;
+        $guest->fill($validated);
         $guest->save();
 
         // Check if fellows is not empty and process fellows data
-        if ($fellows){
+        if (isset($validated['fellows'])){
             // Get the last inserted guest_id for inserting in fellows table
             $insertedId = $guest->id;
 
-            foreach ($fellows as $formFellow) {
+            foreach ($validated['fellows'] as $formFellow) {
                 $formFellow['guest_id'] = $insertedId;
                 $fellow = new Fellow;
                 $fellow->fill($formFellow);
@@ -257,12 +235,14 @@ class GuestController extends Controller
     public function edit($id)
     {
         $countries = $this->countries->all()->pluck('name.common')->toArray();
+        $accommodations = Accommodation::all();
 
         $guest = Guest::find($id);
         return view('guests/edit')
             ->with('guest', $guest)
             ->with('fellows', $guest->fellows)
-            ->with('countries', $countries);
+            ->with('countries', $countries)
+            ->with('accommodations', $accommodations);
     }
 
     /**
@@ -273,35 +253,12 @@ class GuestController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function update(Request $request, Guest $guest)
+    public function update(GuestRequest $request, Guest $guest)
     {
-        $baseValidation = [
-            'last_name' => 'required',
-            'first_name' => 'required',
-            'gender' => 'required',
-            'birth_date' => 'required',
-            'citizenship' => 'required',
-            'document_type' => 'required',
-            'document' => 'required',
-            'address' => 'required',
-            'arrival_date' => 'required',
-            'est_departure_date' => 'required',
-            'signature' => 'required',
-        ];
-
-        $fellows = request()->get('fellows');
-
-        if ($fellows){
-            $baseValidation['*.*.first_name'] = 'required|min:2';
-            $baseValidation['*.*.last_name'] = 'required|min:2';
-            $baseValidation['*.*.birth_date'] = 'required|date';
-        }
-
-        $this->validate($request, $baseValidation);
+        $validated = $request->validated();
 
         // Process guest data
-        $formData = $request->all();
-        $guest->fill($formData);
+        $guest->fill($validated);
         $guest->save();
 
         // Check if fellows is not empty and process fellows data
@@ -311,8 +268,8 @@ class GuestController extends Controller
         $fellowIdList = [];
 
         // Check the incoming fellow array for new or edited fellows
-        if ($fellows) {
-            foreach ($fellows as $key => $formFellow) {
+        if (isset($validated['fellows'])) {
+            foreach ($validated['fellows'] as $key => $formFellow) {
                 if (strlen($key >= 5)) {
                     // If you just edit the Fellow you have to figure out the id where to save the data
                     $fellowId = substr($key, 3);
@@ -337,9 +294,8 @@ class GuestController extends Controller
                 $fellow->delete();
             }
         }
-        return back()->with('success', 'Record updated');
-        #return redirect()->route('guests.show',$id)->with('success', 'Record updated');
 
+        return redirect()->route('guests.show',$guest->id)->with('success', 'Record updated');
     }
 
     /**

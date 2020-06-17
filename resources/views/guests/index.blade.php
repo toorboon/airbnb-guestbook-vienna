@@ -68,7 +68,7 @@
 
                             <h4 class="card-title mt-2 text-center" title="Click me, for more information!">{{ $booking['start']->format('d.m.') }} - {{ $booking['end'] }}</h4>
                             <h6 class="card-subtitle text-muted text-center">Number of visitors {{ $booking['count'] }}</h6>
-                            <span class="d-block text-center">Acc.: {{ $booking['accommodation'] }}</span>
+                            <span class="d-block text-center">Acc.: @if(isset($booking['accommodation'])) {{ $booking['accommodation'] }} @endif</span>
                         </div>
 
                         <div class="card-body d-flex-column justify-content-center">

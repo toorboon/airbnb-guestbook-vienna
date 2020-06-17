@@ -7,8 +7,8 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="text-center">{{$guest->first_name}} {{$guest->last_name}}</h3>
-                        <h4 class="text-center">{{\Carbon\Carbon::parse($guest->arrival_date)->format('d.m.Y')}}</h4>
-                        <h6 class="text-center">Booked for accommodation: {{ $guest->accommodation->name }} </h6>
+                        <h4 class="text-center">Arrival: {{ \Carbon\Carbon::parse($guest->arrival_date)->format('d.m.Y') }}</h4>
+                        <h6 class="text-center">Booked for accommodation: @if($guest->accommodation) {{ $guest->accommodation->name }} @endif </h6>
                     </div>
 
                     <div class="card-body">
